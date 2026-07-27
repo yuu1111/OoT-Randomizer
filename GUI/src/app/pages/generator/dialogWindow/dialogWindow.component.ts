@@ -13,7 +13,7 @@ import { NbDialogRef } from '@nebular/theme';
       </nb-card-body>
       <nb-card-footer>
         <div class="footerButtonWrapper">
-          <button nbButton size="small" status="primary" (click)="closeDialog()">OK</button>
+          <button nbButton size="small" status="primary" (click)="closeDialog()">{{ 'okay' | t:'OK' }}</button>
         </div>
       </nb-card-footer>
     </nb-card>

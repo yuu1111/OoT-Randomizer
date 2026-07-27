@@ -14,8 +14,8 @@ import { GUIGlobal } from '../../../providers/GUIGlobal';
       </nb-card-body>
       <nb-card-footer>
         <div class="footerButtonWrapper">
-          <button nbButton size="small" status="basic" (click)="closeDialog()">OK</button>
-          <button nbButton size="small" status="info" (click)="copyErrorMessage()">Copy</button>
+          <button nbButton size="small" status="basic" (click)="closeDialog()">{{ 'okay' | t:'OK' }}</button>
+          <button nbButton size="small" status="info" (click)="copyErrorMessage()">{{ 'copy' | t:'Copy' }}</button>
         </div>
       </nb-card-footer>
     </nb-card>

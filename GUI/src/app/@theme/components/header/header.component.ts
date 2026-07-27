@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {GUIGlobal} from '../../../providers/GUIGlobal';
 import {ThemeSwitcher} from '../../../providers/theme-switcher.service';
+import {SupportedLanguage} from '../../../providers/i18n.service';
 
 @Component({
   selector: 'ootr-header',
@@ -62,5 +63,12 @@ export class HeaderComponent implements OnInit {
 
   switchTheme() {
     this.themeSwitcher.switchTheme();
+  }
+
+  changeLanguage(language: SupportedLanguage) {
+    this.global.setLanguage(language).then(() => {
+      this.cd.markForCheck();
+      this.cd.detectChanges();
+    });
   }
 }

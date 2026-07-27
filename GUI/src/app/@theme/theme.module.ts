@@ -43,6 +43,7 @@ import {
   GUILayoutComponent
 } from './layouts';
 import {ThemeSwitcher} from '../providers/theme-switcher.service';
+import {TranslatePipe} from './pipes/translate.pipe';
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule];
 
@@ -80,7 +81,8 @@ const NB_MODULES = [
 const COMPONENTS = [
   HeaderComponent,
   FooterComponent,
-  GUILayoutComponent
+  GUILayoutComponent,
+  TranslatePipe
 ];
 
 const NB_THEME_PROVIDERS = [

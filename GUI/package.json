@@ -16,6 +16,7 @@
     "electron-compile": "tsc --p electron",
     "electron-dev": "electron .",
     "electron-release": "electron . release",
+    "i18n:check": "node scripts/check-i18n.cjs",
     "pack": "tsc --p electron && electron-builder --dir",
     "dist": "tsc --p electron && electron-builder"
   },

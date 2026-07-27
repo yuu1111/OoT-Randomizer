@@ -42,13 +42,30 @@ export class GeneratorComponent implements OnInit {
   generateSeedButtonEnabled: boolean = true;
   inputOldValue: any = null; //Used to manage input field backup/restore
 
-  //Static settings
-  generateFromSeedTabTitle: string = "Generate New Seed";
-  generateFromFileTabTitle: string = "Generate From Patch File";
+  listboxFormat: any = {
+    add: 'Add', remove: 'Remove', all: 'All', none: 'None',
+    direction: 'left-to-right', draggable: true, locale: 'en'
+  };
 
-  repatchCosmeticsCheckboxText: string = "Override Original Cosmetics";
-  repatchCosmeticsCheckboxTooltipPatch: string = "Replaces the cosmetic and sound settings generated in the patch file<br>with those selected on this page.";
-  repatchCosmeticsCheckboxTooltipSeedPageWeb: string = "Replaces the cosmetic and sound settings generated in the seed<br>with those selected on this page.";
+  get generateFromSeedTabTitle(): string {
+    return this.global.i18n.fixed('generateNewSeed', 'Generate New Seed');
+  }
+
+  get generateFromFileTabTitle(): string {
+    return this.global.i18n.fixed('generateFromPatchFile', 'Generate From Patch File');
+  }
+
+  get repatchCosmeticsCheckboxText(): string {
+    return this.global.i18n.fixed('overrideCosmetics', 'Override Original Cosmetics');
+  }
+
+  get repatchCosmeticsCheckboxTooltipPatch(): string {
+    return this.global.i18n.fixed('overrideCosmeticsPatchTooltip', 'Replaces the cosmetic and sound settings generated in the patch file<br>with those selected on this page.');
+  }
+
+  get repatchCosmeticsCheckboxTooltipSeedPageWeb(): string {
+    return this.global.i18n.fixed('overrideCosmeticsSeedTooltip', 'Replaces the cosmetic and sound settings generated in the seed<br>with those selected on this page.');
+  }
 
   constructor(private overlayContainer: OverlayContainer, private cd: ChangeDetectorRef, public global: GUIGlobal, private dialogService: NbDialogService) {
   }
@@ -78,6 +95,7 @@ export class GeneratorComponent implements OnInit {
   }
 
   generatorReady() {
+    this.refreshLocalizedControls();
     this.generatorBusy = false;
 
     //Set active tab on boot
@@ -122,17 +140,30 @@ export class GeneratorComponent implements OnInit {
       this.global.globalEmitter.subscribe(eventObj => {
 
         if (eventObj.name == "refresh_gui") {
+          this.refreshLocalizedControls();
           this.cd.markForCheck();
           this.cd.detectChanges();
         }
         else if (eventObj.name == "dialog_error") {
           this.dialogService.open(DialogWindowComponent, {
-            autoFocus: true, closeOnBackdropClick: true, closeOnEsc: true, hasBackdrop: true, hasScroll: false, context: { dialogHeader: "Error", dialogMessage: eventObj.message }
+            autoFocus: true, closeOnBackdropClick: true, closeOnEsc: true, hasBackdrop: true, hasScroll: false, context: { dialogHeader: this.global.i18n.fixed('error', 'Error'), dialogMessage: eventObj.message }
           });
         }
       });
 
     }, 0);
+  }
+
+  private refreshLocalizedControls() {
+    this.listboxFormat = {
+      add: this.global.i18n.fixed('add', 'Add'),
+      remove: this.global.i18n.fixed('remove', 'Remove'),
+      all: this.global.i18n.fixed('all', 'All'),
+      none: this.global.i18n.fixed('none', 'None'),
+      direction: 'left-to-right',
+      draggable: true,
+      locale: this.global.i18n.currentLanguage,
+    };
   }
 
   getTabList(footer: boolean) {
@@ -175,13 +206,13 @@ export class GeneratorComponent implements OnInit {
       }
     }
 
-    let goalErrorText = "The selected hint distribution includes the Goal hint type. This can drastically increase generation time for large multiworld seeds. Continue?";
-    let noLogicErrorText = "You have selected No Logic. This can produce unbeatable seeds. Continue?";
+    let goalErrorText = this.global.i18n.fixed('goalHintWarningMessage', 'The selected hint distribution includes the Goal hint type. This can drastically increase generation time for large multiworld seeds. Continue?');
+    let noLogicErrorText = this.global.i18n.fixed('noLogicWarningMessage', 'You have selected No Logic. This can produce unbeatable seeds. Continue?');
     let goalDistros = this.global.getGlobalVar('generatorGoalDistros');
 
     if (!goalHintsConfirmed && goalDistros.indexOf(this.global.generator_settingsMap["hint_dist"]) > -1 && this.global.generator_settingsMap["world_count"] > 5) {
       this.dialogService.open(ConfirmationWindowComponent, {
-        autoFocus: true, closeOnBackdropClick: false, closeOnEsc: false, hasBackdrop: true, hasScroll: false, context: { dialogHeader: "Goal Hint Warning", dialogMessage: goalErrorText }
+        autoFocus: true, closeOnBackdropClick: false, closeOnEsc: false, hasBackdrop: true, hasScroll: false, context: { dialogHeader: this.global.i18n.fixed('goalHintWarning', 'Goal Hint Warning'), dialogMessage: goalErrorText }
       }).onClose.subscribe(confirmed => {
         //User acknowledged increased generation time for multiworld seeds with goal hints
         if (confirmed) {
@@ -200,7 +231,7 @@ export class GeneratorComponent implements OnInit {
       let noLogicConfirmed = localStorage.getItem("noLogicConfirmed");
       if ((!noLogicConfirmed || noLogicConfirmed == "false") && this.global.generator_settingsMap["logic_rules"] === "none") {
         this.dialogService.open(ConfirmationWindowComponent, {
-          autoFocus: true, closeOnBackdropClick: false, closeOnEsc: false, hasBackdrop: true, hasScroll: false, context: { dialogHeader: "No Logic Warning", dialogMessage: noLogicErrorText }
+          autoFocus: true, closeOnBackdropClick: false, closeOnEsc: false, hasBackdrop: true, hasScroll: false, context: { dialogHeader: this.global.i18n.fixed('noLogicWarning', 'No Logic Warning'), dialogMessage: noLogicErrorText }
         }).onClose.subscribe(confirmed => {
           //User acknowledged possible unbeatability of no logic seeds
           if (confirmed) {
@@ -228,7 +259,7 @@ export class GeneratorComponent implements OnInit {
       //Error if no patch file was entered in fromPatchFile mode
       if (fromPatchFile && !this.global.generator_settingsMap['patch_file']) {
         this.dialogService.open(DialogWindowComponent, {
-          autoFocus: true, closeOnBackdropClick: true, closeOnEsc: true, hasBackdrop: true, hasScroll: false, context: { dialogHeader: "Error", dialogMessage: "You didn't enter a patch file!" }
+          autoFocus: true, closeOnBackdropClick: true, closeOnEsc: true, hasBackdrop: true, hasScroll: false, context: { dialogHeader: this.global.i18n.fixed('error', 'Error'), dialogMessage: this.global.i18n.fixed('patchFileRequired', "You didn't enter a patch file!") }
         });
 
         this.generateSeedButtonEnabled = true;
@@ -256,7 +287,7 @@ export class GeneratorComponent implements OnInit {
           dialogRef.componentRef.instance.progressStatus = 1;
           dialogRef.componentRef.instance.progressPercentageCurrent = 100;
           dialogRef.componentRef.instance.progressPercentageTotal = 100;
-          dialogRef.componentRef.instance.progressMessage = "Done. Enjoy.";
+          dialogRef.componentRef.instance.progressMessage = this.global.i18n.fixed('doneEnjoy', 'Done. Enjoy.');
           dialogRef.componentRef.instance.progressErrorDetails = "";
           dialogRef.componentRef.instance.refreshLayout();
         }
@@ -501,7 +532,7 @@ export class GeneratorComponent implements OnInit {
       this.cd.detectChanges();
 
       this.dialogService.open(DialogWindowComponent, {
-        autoFocus: true, closeOnBackdropClick: true, closeOnEsc: true, hasBackdrop: true, hasScroll: false, context: { dialogHeader: "Error", dialogMessage: "The entered settings string seems to be invalid!" }
+        autoFocus: true, closeOnBackdropClick: true, closeOnEsc: true, hasBackdrop: true, hasScroll: false, context: { dialogHeader: this.global.i18n.fixed('error', 'Error'), dialogMessage: this.global.i18n.fixed('invalidSettingsString', 'The entered settings string seems to be invalid!') }
       });
     });
   }
@@ -511,6 +542,16 @@ export class GeneratorComponent implements OnInit {
       return Object.keys(this.global.generator_presets);
     else
       return [];
+  }
+
+  getPresetLabel(presetKey: string): string {
+    const labels = {
+      '[New Preset]': this.global.i18n.fixed('newPreset', '[New Preset]'),
+      'Default / Beginner': this.global.i18n.fixed('defaultBeginnerPreset', 'Default / Beginner'),
+      'Easy Mode': this.global.i18n.fixed('easyModePreset', 'Easy Mode'),
+      'Hell Mode': this.global.i18n.fixed('hellModePreset', 'Hell Mode'),
+    };
+    return labels[presetKey] ?? presetKey;
   }
 
   loadPreset() {

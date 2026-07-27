@@ -5,6 +5,7 @@ import { ProgressWindowComponent } from '../pages/generator/progressWindow/progr
 
 import * as post from 'post-robot';
 import {GuiEvent} from './GuiEvent';
+import {I18nService, SupportedLanguage} from './i18n.service';
 
 @Directive()
 @Injectable()
@@ -26,7 +27,7 @@ export class GUIGlobal implements OnDestroy {
 
   @Output() globalEmitter: EventEmitter<GuiEvent> = new EventEmitter();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, public i18n: I18nService) {
     this.globalVars = new Map<string, any>([
       ["appReady", false],
       ["appType", null],
@@ -40,6 +41,23 @@ export class GUIGlobal implements OnDestroy {
       ["generatorCosmeticsObj", {}],
       ["generatorGoalDistros", []]
     ]);
+  }
+
+  async setLanguage(language: SupportedLanguage) {
+    await this.i18n.setLanguage(language);
+    this.applyLanguageToLoadedSettings();
+    this.globalEmitter.emit({ name: "refresh_gui" });
+  }
+
+  private applyLanguageToLoadedSettings() {
+    for (const key of [
+      'generatorSettingsArray',
+      'generatorSettingsObj',
+      'generatorCosmeticsArray',
+      'generatorCosmeticsObj',
+    ]) {
+      this.i18n.applyToSettingsDocument(this.getGlobalVar(key));
+    }
   }
 
   globalInit(appType: string) {
@@ -468,6 +486,7 @@ export class GUIGlobal implements OnDestroy {
   }
 
   async parseGeneratorGUISettings(guiSettings, userSettings) {
+    await this.i18n.ensureLoaded();
     const isRGBHex = /[0-9A-Fa-f]{6}/;
 
     //Intialize settings maps
@@ -629,6 +648,8 @@ export class GUIGlobal implements OnDestroy {
     this.setGlobalVar('generatorCosmeticsArray', guiSettings.cosmeticsArray);
     this.setGlobalVar('generatorCosmeticsObj', guiSettings.cosmeticsObj);
     this.setGlobalVar('generatorGoalDistros', guiSettings.distroArray);
+
+    this.applyLanguageToLoadedSettings();
 
     this.generator_presets = guiSettings.presets;
   }
