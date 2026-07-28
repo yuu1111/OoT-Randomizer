@@ -6,7 +6,13 @@ export type SupportedLanguage = 'en' | 'ja';
 interface SettingTranslation {
   text?: string;
   tooltip?: string;
-  options?: { [key: string]: string };
+  options?: {
+    [key: string]: string | {
+      text?: string;
+      tooltip?: string;
+      tags?: string[];
+    };
+  };
 }
 
 interface LocaleResource {
@@ -23,6 +29,7 @@ interface OriginalText {
   text?: string;
   tooltip?: string;
   subheader?: string;
+  tags?: string[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -131,8 +138,19 @@ export class I18nService {
             }
             this.restore(option);
             const stableOptionId = String(option.name ?? optionId);
-            if (translation?.options?.[stableOptionId] !== undefined) {
-              option.text = translation.options[stableOptionId];
+            const optionTranslation = translation?.options?.[stableOptionId];
+            if (typeof optionTranslation === 'string') {
+              option.text = optionTranslation;
+            } else if (optionTranslation) {
+              if (optionTranslation.text !== undefined) {
+                option.text = optionTranslation.text;
+              }
+              if (optionTranslation.tooltip !== undefined) {
+                option.tooltip = optionTranslation.tooltip;
+              }
+              if (optionTranslation.tags !== undefined) {
+                option.tags = [...optionTranslation.tags];
+              }
             }
           }
         }
@@ -163,6 +181,9 @@ export class I18nService {
       if (typeof value.subheader === 'string') {
         original.subheader = value.subheader;
       }
+      if (Array.isArray(value.tags)) {
+        original.tags = [...value.tags];
+      }
       this.originalText.set(value, original);
     }
     if (original.text !== undefined) {
@@ -173,6 +194,9 @@ export class I18nService {
     }
     if (original.subheader !== undefined) {
       value.subheader = original.subheader;
+    }
+    if (original.tags !== undefined) {
+      value.tags = [...original.tags];
     }
   }
 
